@@ -5,24 +5,18 @@ import * as Checkbox from '@radix-ui/react-checkbox'
 interface TaskList {
   task: string;
   onDeleteTask: (task: string) => void;
+  onCompletedTask: (checked: boolean) => void;
 }
 
-export function Task({ task, onDeleteTask }: TaskList) {
+export function Task({ task, onDeleteTask, onCompletedTask }: TaskList) {
   const [checked, setChecked] = useState(false)
-  const [completed, setCompleted] = useState(0)
 
   function handleTaskCompleted() {
-    if (checked === false) {
-      setChecked(true)
-    } else {
-      setChecked(false)
-    }
+    setChecked((prevChecked) => !prevChecked)
   }
 
-  function handleCompleted() {
-    if (checked === true) {
-      setCompleted(completed + 1)
-    }
+  function handleWithTaskCompleted() {
+    onCompletedTask(checked)
   }
 
   function handleDeleteTask(event: FormEvent) {
@@ -33,7 +27,7 @@ export function Task({ task, onDeleteTask }: TaskList) {
 
   return (
     <div className="flex justify-between items-start gap-3 mb-3 p-4 bg-zinc-550 rounded-lg">
-      <Checkbox.Root id={task} onClick={handleTaskCompleted} onChange={handleCompleted} className="flex p-2.5 data-[state=checked]:p-0 border data-[state=checked]:border-transparent border-blue-350 data-[state=unchecked]:hover:bg-blue-550/20 bg-transparent rounded-full">
+      <Checkbox.Root id={task} onClick={handleTaskCompleted} onCheckedChange={handleWithTaskCompleted} className="flex p-2.5 data-[state=checked]:p-0 border data-[state=checked]:border-transparent border-blue-350 data-[state=unchecked]:hover:bg-blue-550/20 bg-transparent rounded-full">
         <Checkbox.Indicator className="p-0.5 text-zinc-150 bg-purpleDark-500 data-[state=checked]:hover:bg-indigo-450 rounded-full">
           <Check />
         </Checkbox.Indicator>
