@@ -58,7 +58,7 @@ export function App() {
         </strong>
       </header>
 
-      <main className="w-[736px] mx-auto">
+      <main className="px-4 md:px-0 md:w-[736px] mx-auto">
         <form className="flex gap-2 -mt-7">
           <div className="flex-1 rounded-lg">
             <label htmlFor="task" className="sr-only">Adicione uma nova tarefa</label>
