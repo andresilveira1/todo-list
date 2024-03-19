@@ -4,7 +4,7 @@ import * as Checkbox from '@radix-ui/react-checkbox'
 
 interface TaskList {
   task: string;
-  onDeleteTask: (task: string) => void;
+  onDeleteTask: (task: string, checked: boolean) => void;
   onCompletedTask: (checked: boolean) => void;
 }
 
@@ -22,7 +22,7 @@ export function Task({ task, onDeleteTask, onCompletedTask }: TaskList) {
   function handleDeleteTask(event: FormEvent) {
     event.preventDefault()
 
-    onDeleteTask(task)
+    onDeleteTask(task, checked)
   }
 
   return (

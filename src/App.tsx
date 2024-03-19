@@ -36,11 +36,15 @@ export function App() {
     }
   }
 
-  function deleteTask(task: string) {
+  function deleteTask(task: string, checked: boolean) {
     const taskListWithoutDeletedTask = createTask.filter(tasks => tasks !== task)
 
-    setCreateTask(taskListWithoutDeletedTask)
-    setCompleted((prevCompleted) => prevCompleted - 1)
+    if (checked) {
+      setCreateTask(taskListWithoutDeletedTask)
+      setCompleted((prevCompleted) => prevCompleted - 1)
+    } else {
+      setCreateTask(taskListWithoutDeletedTask)
+    }
   }
 
   const doesTasksNotExists = createTask.length === 0 && <EmptyForm />
