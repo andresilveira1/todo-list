@@ -1,15 +1,31 @@
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { PlusCircle } from '@phosphor-icons/react'
 
 import logo from './assets/logo.svg'
-import { Task } from './components/Task'
-import { ChangeEvent, FormEvent, useState } from 'react'
-import { EmptyForm } from './components/EmptyForm'
-import { TaskStatus } from './components/TaskStatus'
+import { Task } from './components/task'
+import { EmptyForm } from './components/empty-form'
+import { TaskStatus } from './components/task-status'
+
+interface TaskProps {
+  id: Date
+  task: string
+  isCompleted: boolean
+}
 
 export function App() {
   const [task, setTask] = useState('')
-  const [createTask, setCreateTask] = useState<string[]>([])
-  const [completed, setCompleted] = useState(0)
+  const [createTask, setCreateTask] = useState<TaskProps[]>(() => {
+    const storedStateAsJSON = localStorage.getItem(
+      '@todo-list:task-state-1.0.0',
+    )
+
+    if (storedStateAsJSON) {
+      return JSON.parse(storedStateAsJSON)
+    } 
+    
+    return []
+  })
+  const [taskCompleted, setTaskCompleted] = useState(0)
 
   function handleTaskText(event: ChangeEvent<HTMLInputElement>) {
     setTask(event.target.value)
@@ -18,8 +34,16 @@ export function App() {
   function handleCreateTask(event: FormEvent) {
     event.preventDefault()
 
-    setCreateTask([...createTask, task])
-    setTask('')
+    const newTask = {
+      id: new Date(),
+      task,
+      isCompleted: false
+    }
+
+    if (newTask.task.length > 0) {
+      setCreateTask((prevState) => [...prevState, newTask])
+      setTask('')
+    }
   }
 
   function hasTasksStatus() {
@@ -29,25 +53,35 @@ export function App() {
   }
 
   function handleTaskCompleted(checked: boolean) {
+    // const task = localStorage.getItem(
+    //   '@todo-list:task-state-1.0.0',
+    // )
+
+    // if (task) {
+    //   const taskCompleted: TaskProps[] = JSON.parse(task)
+    //   taskCompleted.map((task) => task.id)
+    // }
+
     if (checked) {
-      setCompleted((prevCompleted) => prevCompleted + 1)
+      setTaskCompleted((prevCompleted) => prevCompleted + 1)
     } else {
-      setCompleted((prevCompleted) => prevCompleted - 1)
+      setTaskCompleted((prevCompleted) => prevCompleted - 1)
     }
   }
 
-  function deleteTask(task: string, checked: boolean) {
-    const taskListWithoutDeletedTask = createTask.filter(tasks => tasks !== task)
+  function deleteTask(task: string) {
+    const taskListWithoutDeletedTask = createTask.filter(tasks => tasks.task !== task)
 
-    if (checked) {
-      setCreateTask(taskListWithoutDeletedTask)
-      setCompleted((prevCompleted) => prevCompleted - 1)
-    } else {
-      setCreateTask(taskListWithoutDeletedTask)
-    }
+    setCreateTask(taskListWithoutDeletedTask)
   }
 
   const doesTasksNotExists = createTask.length === 0 && <EmptyForm />
+
+  useEffect(() => {
+    const stateJSON = JSON.stringify(createTask)
+
+    localStorage.setItem('@todo-list:task-state-1.0.0', stateJSON)
+  }, [createTask])
 
   return (
     <div className="h-screen">
@@ -59,34 +93,36 @@ export function App() {
       </header>
 
       <main className="px-4 md:px-0 md:w-[736px] mx-auto">
-        <form className="flex gap-2 -mt-7">
-          <div className="flex-1 rounded-lg">
-            <label htmlFor="task" className="sr-only">Adicione uma nova tarefa</label>
-            <input type="text" id="task" value={task} onChange={handleTaskText} placeholder="Adicione uma nova tarefa" className="w-full p-4 rounded-lg placeholder-zinc-350 bg-zinc-550 text-zinc-150 outline-none border border-zinc-1000 focus:border-purpleDark-500"/>
+        <form>
+          <div className="flex gap-2 -mt-7">
+            <div className="flex-1 rounded-lg">
+              <label htmlFor="task" className="sr-only">Adicione uma nova tarefa</label>
+              <input type="text" id="task" value={task} onChange={handleTaskText} placeholder="Adicione uma nova tarefa" className="w-full p-4 rounded-lg placeholder-zinc-350 bg-zinc-550 text-zinc-150 outline-none border border-zinc-1000 focus:border-purpleDark-500"/>
+            </div>
+
+            <button 
+              className="flex items-center justify-center gap-2 p-4 bg-blue-550 text-sm font-bold text-zinc-150 rounded-lg hover:bg-blue-350"
+              onClick={handleCreateTask}
+            >
+              Criar
+              <PlusCircle className="text-lg"/>
+            </button>
           </div>
 
-          <button 
-            className="flex items-center justify-center gap-2 p-4 bg-blue-550 text-sm font-bold text-zinc-150 rounded-lg hover:bg-blue-350"
-            onClick={handleCreateTask}
-          >
-            Criar
-            <PlusCircle className="text-lg"/>
-          </button>
+          <section className="mt-16 overflow-auto">
+            <TaskStatus totalTasks={hasTasksStatus} completedTasks={taskCompleted}/>
+
+            <div className="mt-6" id="tasks">
+              {doesTasksNotExists}
+
+              {
+                createTask.map(tasks => {
+                  return <Task key={String(tasks.id)} task={tasks.task} onDeleteTask={deleteTask} onCompletedTask={handleTaskCompleted} />
+                })
+              }
+            </div>
+          </section>
         </form>
-
-        <section className="mt-16 overflow-auto">
-          <TaskStatus totalTasks={hasTasksStatus} completedTasks={completed}/>
-
-          <form className="mt-6" id="teste">
-            {doesTasksNotExists}
-
-            {
-              createTask.map(tasks => {
-                return <Task key={tasks} task={tasks} onDeleteTask={deleteTask} onCompletedTask={handleTaskCompleted} />
-              })
-            }
-          </form>
-        </section>
       </main>
     </div>
   )

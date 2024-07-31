@@ -4,7 +4,7 @@ import * as Checkbox from '@radix-ui/react-checkbox'
 
 interface TaskList {
   task: string;
-  onDeleteTask: (task: string, checked: boolean) => void;
+  onDeleteTask: (task: string) => void;
   onCompletedTask: (checked: boolean) => void;
 }
 
@@ -19,10 +19,11 @@ export function Task({ task, onDeleteTask, onCompletedTask }: TaskList) {
     onCompletedTask(checked)
   }
 
+
   function handleDeleteTask(event: FormEvent) {
     event.preventDefault()
 
-    onDeleteTask(task, checked)
+    onDeleteTask(task)
   }
 
   return (
@@ -32,7 +33,9 @@ export function Task({ task, onDeleteTask, onCompletedTask }: TaskList) {
           <Check />
         </Checkbox.Indicator>
       </Checkbox.Root>
-      <label htmlFor={task} id="teste" data-state={checked} className="w-full overflow-hidden text-zinc-150 text-sm data-[state=true]:line-through data-[state=true]:text-zinc-350">{task}</label>
+      <label htmlFor={task} id="tasks" data-state={checked} className="w-full overflow-hidden text-zinc-150 text-sm data-[state=true]:line-through data-[state=true]:text-zinc-350">
+        {task}
+      </label>
 
       <button onClick={handleDeleteTask} title="Delete Task">
         <Trash className="text-zinc-350 text-xl hover:text-red-450"/>
